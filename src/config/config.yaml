@@ -1,0 +1,25 @@
+
+puyoImgWidth: 40 # ぷよぷよ画像の幅
+puyoImgHeight: 40 # ぷよぷよ画像の高さ
+fontHeight : 33
+stageCols : 20 # ステージの横の個数
+stageRows : 20 # ステージの縦の個数
+
+# フィールドサイズ追加
+# 高さが全部入るように調整
+puyoImgHeight : (window.innerHeight-Config.fontHeight)/Config.stageRows
+puyoImgWidth : Config.puyoImgHeight
+
+stageBackgroundColor : '#ffffff' # ステージの背景色
+scoreBackgroundColor : '#24c0bb' # スコアの背景色
+freeFallingSpeed : 16 # 自由落下のスピード
+erasePuyoCount : 4 # 何個以上揃ったら消えるか
+eraseAnimationDuration : 30 # 何フレームでぷよを消すか
+puyoColors : 4 # 何色のぷよを使うか
+playerFallingSpeed : 0.9 # プレイ中の自然落下のスピード
+playerDownSpeed : 10 # プレイ中の下キー押下時の落下スピード
+playerGroundFrame : 20 # 何フレーム接地したらぷよを固定するか
+playerMoveFrame : 10 # 左右移動に消費するフレーム数
+playerRotateFrame : 10 # 回転に消費するフレーム数
+zenkeshiDuration : 150 # 全消し時のアニメーションミリセカンド
+gameOverFrame : 3000 # ゲームオーバー演出のサイクルフレーム
