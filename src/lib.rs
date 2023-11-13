@@ -1,11 +1,13 @@
 mod config;
+mod creator;
 mod field;
 mod player;
 mod rules;
 
-use std::time::Duration;
-
 extern crate futures;
+use config::Color;
+use creator::creator_trait::Creator;
+use creator::table_creator;
 use futures::Future;
 use js_sys::Promise;
 use player::Player;
@@ -13,7 +15,6 @@ use rules::standard_rule;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen_futures::JsFuture;
-use wasm_timer::Delay;
 use web_sys::console;
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
 // allocator.
@@ -39,7 +40,7 @@ pub async fn main_js() -> Result<(), JsValue> {
 
     let base = "
     <table>
-        <tbody>
+        <tbody id='life-game-table'>
             <tr>
                 <td>The table body</td>
                 <td>with two columns</td>
@@ -49,8 +50,15 @@ pub async fn main_js() -> Result<(), JsValue> {
     ";
     div.set_inner_html(base);
     sleep(5000).await;
-    div.set_inner_html("base");
-    let table = document.create_element("table").unwrap();
+    let v = vec![
+        vec![Color::Black, Color::White],
+        vec![Color::Black, Color::White],
+    ];
+
+    let base = table_creator::TableCreator::builder(v);
+    console::log_1(&JsValue::from_str(&(base.clone())));
+    div.set_inner_html(&base);
+    let table = document.create_element("life-game-table").unwrap();
 
     Ok(())
 }
