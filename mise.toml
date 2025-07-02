@@ -1,0 +1,93 @@
+[tools]
+node = "24"
+rust = "stable"
+
+[env]
+CARGO_TARGET_DIR = "target"
+
+[tasks.build]
+description = "Build the Rust + WebAssembly project for production"
+run = [
+  "wasm-pack build --target web --out-dir pkg --release",
+  "vite build"
+]
+
+[tasks.dev]
+description = "Full development setup and start server"
+run = [
+  "rustup target add wasm32-unknown-unknown",
+  "npm install",
+  "wasm-pack build --target web --out-dir pkg --dev",
+  "npm run dev"
+]
+
+[tasks.test]
+description = "Run all tests (Rust and WebAssembly)"
+run = [
+  "cargo test",
+  "wasm-pack test --headless --firefox",
+  "wasm-pack test --headless --chrome"
+]
+
+[tasks.test-rust]
+description = "Run only Rust tests"
+run = "cargo test"
+
+[tasks.test-wasm]
+description = "Run WebAssembly tests in browser"
+run = "wasm-pack test --headless --firefox"
+
+[tasks.clean]
+description = "Clean all build artifacts"
+run = [
+  "cargo clean",
+  "rm -rf pkg dist node_modules/.vite"
+]
+
+[tasks.setup]
+description = "Install all dependencies and tools"
+run = [
+  "rustup target add wasm32-unknown-unknown",
+  "cargo install wasm-pack",
+  "npm install"
+]
+
+[tasks.check]
+description = "Check code formatting and linting"
+run = [
+  "cargo fmt -- --check",
+  "cargo clippy -- -D warnings"
+]
+
+[tasks.fix]
+description = "Fix code formatting and linting issues"
+run = [
+  "cargo fmt",
+  "cargo clippy --fix --allow-dirty"
+]
+
+[tasks.preview]
+description = "Preview production build"
+run = [
+  "mise run build",
+  "vite preview"
+]
+
+[tasks.size]
+description = "Show WebAssembly bundle size"
+run = "ls -lah pkg/*.wasm"
+
+[tasks.optimize]
+description = "Build with maximum optimization"
+run = [
+  "wasm-pack build --target web --out-dir pkg --release",
+  "wasm-opt -Oz -o pkg/optimized.wasm pkg/*.wasm"
+]
+
+[tasks.wasm-build]
+description = "Build WebAssembly package for development"
+run = "wasm-pack build --target web --out-dir pkg --dev"
+
+[tasks.wasm-build-release]
+description = "Build WebAssembly package for production"
+run = "wasm-pack build --target web --out-dir pkg --release"
