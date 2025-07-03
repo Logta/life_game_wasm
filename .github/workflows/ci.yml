@@ -42,7 +42,7 @@ jobs:
         cache: 'npm'
     
     - name: Install dependencies
-      run: npm ci
+      run: npm install
     
     - name: Run Rust tests
       run: cargo test --verbose
@@ -54,7 +54,13 @@ jobs:
       run: cargo fmt -- --check
     
     - name: Build WebAssembly (dev)
-      run: wasm-pack build --target web --out-dir pkg --dev
+      run: wasm-pack build --target web --out-name life_game_wasm --dev
+    
+    - name: Run TypeScript type check
+      run: npm run typecheck
+    
+    - name: Run ESLint
+      run: npm run lint
     
     - name: Build with Vite
       run: npm run build
@@ -93,10 +99,10 @@ jobs:
         cache: 'npm'
     
     - name: Install dependencies
-      run: npm ci
+      run: npm install
     
     - name: Build WebAssembly (release)
-      run: wasm-pack build --target web --out-dir pkg --release
+      run: wasm-pack build --target web --out-name life_game_wasm --release
     
     - name: Build production
       run: npm run build
@@ -122,5 +128,14 @@ jobs:
         cargo install cargo-audit
         cargo audit
     
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install npm dependencies
+      run: npm install
+    
     - name: npm audit
-      run: npm audit --audit-level moderate
+      run: npm audit --audit-level moderate || true

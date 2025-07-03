@@ -1,35 +1,43 @@
+mod constants;
+mod error;
 mod field;
+mod renderer;
 mod rules;
 
 use field::Field;
-use rules::standard_rule::StandardRule;
+use renderer::Renderer;
+use rules::{standard_rule::StandardRule, Rule};
 use wasm_bindgen::prelude::*;
-use web_sys::{console, CanvasRenderingContext2d};
+use web_sys::CanvasRenderingContext2d;
 
-
-const CELL_SIZE: u32 = 10;
-const GRID_COLOR: &str = "#333333";
-const DEAD_COLOR: &str = "#000000";
-const ALIVE_COLOR: &str = "#ffffff";
-
+/// The main Game of Life structure exposed to JavaScript
+/// JavaScriptに公開されるメインのライフゲーム構造体
 #[wasm_bindgen]
 pub struct GameOfLife {
     field: Field,
     width: u32,
     height: u32,
     generation: u32,
+    renderer: Renderer,
+    rule: Box<dyn Rule>,
 }
 
 #[wasm_bindgen]
 impl GameOfLife {
+    /// Create a new Game of Life instance
+    /// 新しいライフゲームインスタンスを作成
     #[wasm_bindgen(constructor)]
     pub fn new(width: u32, height: u32) -> GameOfLife {
+        crate::utils::set_panic_hook();
+        
         let field = Field::new(width as usize, height as usize);
         GameOfLife {
             field,
             width,
             height,
             generation: 0,
+            renderer: Renderer::new(),
+            rule: Box::new(StandardRule::new()),
         }
     }
 
@@ -49,85 +57,56 @@ impl GameOfLife {
         self.field.cells().as_ptr()
     }
 
+    /// Advance the game by one generation
+    /// ゲームを1世代進める
     pub fn tick(&mut self) {
-        let rule = StandardRule::new();
-        self.field = rule.apply(&self.field);
+        self.field = self.rule.apply(&self.field);
         self.generation += 1;
     }
 
+    /// Toggle a cell's state
+    /// セルの状態を切り替える
     pub fn toggle_cell(&mut self, row: u32, col: u32) {
-        self.field.toggle_cell(row as usize, col as usize);
+        // Ignore errors for out-of-bounds clicks
+        let _ = self.field.toggle_cell(row as usize, col as usize);
     }
 
+    /// Clear all cells
+    /// すべてのセルをクリア
     pub fn clear(&mut self) {
         self.field.clear();
         self.generation = 0;
     }
 
+    /// Randomize the field
+    /// フィールドをランダム化
     pub fn randomize(&mut self) {
         self.field.randomize();
         self.generation = 0;
     }
 
+    /// Render the game field to a canvas context
+    /// ゲームフィールドをキャンバスコンテキストに描画
     pub fn render(&self, ctx: &CanvasRenderingContext2d) {
-        self.draw_grid(&ctx);
-        self.draw_cells(&ctx);
-    }
-
-    fn draw_grid(&self, ctx: &CanvasRenderingContext2d) {
-        ctx.begin_path();
-        ctx.set_stroke_style(&JsValue::from_str(GRID_COLOR));
-
-        for i in 0..=self.width {
-            let x = (i * CELL_SIZE) as f64;
-            ctx.move_to(x, 0.0);
-            ctx.line_to(x, (self.height * CELL_SIZE) as f64);
-        }
-
-        for j in 0..=self.height {
-            let y = (j * CELL_SIZE) as f64;
-            ctx.move_to(0.0, y);
-            ctx.line_to((self.width * CELL_SIZE) as f64, y);
-        }
-
-        ctx.stroke();
-    }
-
-    fn draw_cells(&self, ctx: &CanvasRenderingContext2d) {
-        ctx.begin_path();
-
-        for row in 0..self.height {
-            for col in 0..self.width {
-                let idx = self.get_index(row, col);
-                let is_alive = self.field.cells()[idx];
-
-                ctx.set_fill_style(&JsValue::from_str(if is_alive {
-                    ALIVE_COLOR
-                } else {
-                    DEAD_COLOR
-                }));
-
-                ctx.fill_rect(
-                    (col * CELL_SIZE + 1) as f64,
-                    (row * CELL_SIZE + 1) as f64,
-                    (CELL_SIZE - 1) as f64,
-                    (CELL_SIZE - 1) as f64,
-                );
-            }
-        }
-
-        ctx.stroke();
-    }
-
-    fn get_index(&self, row: u32, col: u32) -> usize {
-        (row * self.width + col) as usize
+        self.renderer.render(ctx, &self.field);
     }
 }
 
-#[wasm_bindgen(start)]
-pub fn main() {
-    #[cfg(debug_assertions)]
-    console_error_panic_hook::set_once();
+/// Utility functions for panic debugging
+/// パニックデバッグ用のユーティリティ関数
+mod utils {
+    pub fn set_panic_hook() {
+        // When the `console_error_panic_hook` feature is enabled, we can call the
+        // `set_panic_hook` function at least once during initialization, and then
+        // we will get better error messages if our code ever panics.
+        #[cfg(feature = "console_error_panic_hook")]
+        console_error_panic_hook::set_once();
+    }
 
-    console::log_1(&"Conway's Game of Life initialized!".into());
+}
+
+#[wasm_bindgen]
+pub fn init() {
+    utils::set_panic_hook();
+    web_sys::console::log_1(&"Conway's Game of Life initialized! ライフゲームが初期化されました！".into());
 }

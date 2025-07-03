@@ -1,15 +1,53 @@
 {
-  "author": "You <you@example.com>",
-  "name": "rust-webpack-template",
+  "name": "life-game-wasm",
   "version": "0.1.0",
+  "description": "A high-performance Conway's Game of Life implementation using WebAssembly and TypeScript",
+  "author": "Life Game WASM Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/life-game-wasm"
+  },
+  "keywords": [
+    "game-of-life",
+    "conway",
+    "webassembly",
+    "wasm",
+    "typescript",
+    "rust",
+    "simulation"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "pkg"
+  ],
   "scripts": {
-    "build": "wasm-pack build --target web && vite build",
+    "build:wasm": "wasm-pack build --target web --out-name life_game_wasm",
+    "build:ts": "tsc",
+    "build": "npm run build:wasm && npm run build:ts && vite build",
     "dev": "vite",
     "preview": "vite preview",
-    "test": "cargo test && wasm-pack test --headless"
+    "test": "cargo test && wasm-pack test --headless",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "clean": "rm -rf dist pkg target node_modules/.vite"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0",
     "vite": "^6.3.5",
     "vite-plugin-wasm": "^3.4.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
