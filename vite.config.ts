@@ -7,6 +7,9 @@ import { resolve } from "path";
 export default defineConfig({
   plugins: [wasm()],
   
+  // Base path for GitHub Pages deployment
+  base: process.env.GITHUB_ACTIONS ? '/life_game_wasm/' : '/',
+  
   // Server configuration
   server: {
     port: 3000,
