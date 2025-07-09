@@ -16,10 +16,10 @@ fn test_game_creation() {
 fn test_game_tick() {
     let mut game = GameOfLife::new(10, 10);
     let initial_generation = game.generation();
-    
+
     game.tick();
     assert_eq!(game.generation(), initial_generation + 1);
-    
+
     game.tick();
     assert_eq!(game.generation(), initial_generation + 2);
 }
@@ -27,13 +27,13 @@ fn test_game_tick() {
 #[wasm_bindgen_test]
 fn test_game_clear() {
     let mut game = GameOfLife::new(10, 10);
-    
+
     // Advance the game a few generations
     for _ in 0..5 {
         game.tick();
     }
     assert_eq!(game.generation(), 5);
-    
+
     // Clear should reset generation to 0
     game.clear();
     assert_eq!(game.generation(), 0);
@@ -42,12 +42,12 @@ fn test_game_clear() {
 #[wasm_bindgen_test]
 fn test_toggle_cell() {
     let mut game = GameOfLife::new(10, 10);
-    
+
     // Toggle a cell (we can't directly test the state, but we can ensure it doesn't panic)
     game.toggle_cell(5, 5);
     game.toggle_cell(0, 0);
     game.toggle_cell(9, 9);
-    
+
     // Toggle out of bounds should not panic
     game.toggle_cell(100, 100);
 }
@@ -55,13 +55,13 @@ fn test_toggle_cell() {
 #[wasm_bindgen_test]
 fn test_randomize() {
     let mut game = GameOfLife::new(10, 10);
-    
+
     // Advance the game
     for _ in 0..3 {
         game.tick();
     }
     assert_eq!(game.generation(), 3);
-    
+
     // Randomize should reset generation
     game.randomize();
     assert_eq!(game.generation(), 0);

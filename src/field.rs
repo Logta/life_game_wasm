@@ -28,10 +28,6 @@ impl Field {
         &self.cells
     }
 
-    pub fn cells_mut(&mut self) -> &mut [bool] {
-        &mut self.cells
-    }
-
     pub fn get_index(&self, row: usize, col: usize) -> Result<usize> {
         if row >= self.height || col >= self.width {
             return Err(GameError::new(&format!(
@@ -46,6 +42,7 @@ impl Field {
         row * self.width + col
     }
 
+    #[allow(dead_code)]
     pub fn get_cell(&self, row: usize, col: usize) -> Result<bool> {
         let idx = self.get_index(row, col)?;
         Ok(self.cells[idx])
@@ -56,6 +53,7 @@ impl Field {
         self.cells[idx]
     }
 
+    #[allow(dead_code)]
     pub fn set_cell(&mut self, row: usize, col: usize, alive: bool) -> Result<()> {
         let idx = self.get_index(row, col)?;
         self.cells[idx] = alive;
@@ -86,7 +84,7 @@ impl Field {
 
     pub fn count_live_neighbors(&self, row: usize, col: usize) -> u8 {
         let mut count = 0;
-        
+
         for delta_row in [self.height - 1, 0, 1].iter().cloned() {
             for delta_col in [self.width - 1, 0, 1].iter().cloned() {
                 if delta_row == 0 && delta_col == 0 {
@@ -95,13 +93,13 @@ impl Field {
 
                 let neighbor_row = (row + delta_row) % self.height;
                 let neighbor_col = (col + delta_col) % self.width;
-                
+
                 if self.get_cell_unchecked(neighbor_row, neighbor_col) {
                     count += 1;
                 }
             }
         }
-        
+
         count
     }
 }
@@ -116,7 +114,7 @@ mod test {
         assert_eq!(field.width(), 10);
         assert_eq!(field.height(), 10);
         assert_eq!(field.cells().len(), 100);
-        
+
         // All cells should be dead initially
         for cell in field.cells() {
             assert!(!cell);
@@ -126,36 +124,36 @@ mod test {
     #[test]
     fn test_cell_operations() {
         let mut field = Field::new(3, 3);
-        
+
         // Test initial state
         assert!(!field.get_cell(1, 1).unwrap());
-        
+
         // Test set_cell
         field.set_cell(1, 1, true).unwrap();
         assert!(field.get_cell(1, 1).unwrap());
-        
+
         // Test toggle_cell
         field.toggle_cell(1, 1).unwrap();
         assert!(!field.get_cell(1, 1).unwrap());
-        
+
         // Test out of bounds
         assert!(field.get_cell(10, 10).is_err());
         assert!(field.set_cell(10, 10, true).is_err());
         assert!(field.toggle_cell(10, 10).is_err());
     }
-    
+
     #[test]
     fn test_clear() {
         let mut field = Field::new(3, 3);
-        
+
         // Set some cells alive
         field.set_cell(0, 0, true).unwrap();
         field.set_cell(1, 1, true).unwrap();
         field.set_cell(2, 2, true).unwrap();
-        
+
         // Clear the field
         field.clear();
-        
+
         // All cells should be dead
         for row in 0..3 {
             for col in 0..3 {
@@ -163,11 +161,11 @@ mod test {
             }
         }
     }
-    
+
     #[test]
     fn test_count_live_neighbors() {
         let mut field = Field::new(3, 3);
-        
+
         // Create a pattern:
         // X O X
         // O X O
@@ -176,10 +174,10 @@ mod test {
         field.set_cell(1, 0, true).unwrap();
         field.set_cell(1, 2, true).unwrap();
         field.set_cell(2, 1, true).unwrap();
-        
+
         // Center cell should have 4 live neighbors
         assert_eq!(field.count_live_neighbors(1, 1), 4);
-        
+
         // Corner cells should see wrapping behavior
         let corner_neighbors = field.count_live_neighbors(0, 0);
         assert!(corner_neighbors > 0); // Due to wrapping

@@ -29,7 +29,7 @@ impl GameOfLife {
     #[wasm_bindgen(constructor)]
     pub fn new(width: u32, height: u32) -> GameOfLife {
         crate::utils::set_panic_hook();
-        
+
         let field = Field::new(width as usize, height as usize);
         GameOfLife {
             field,
@@ -102,11 +102,12 @@ mod utils {
         #[cfg(feature = "console_error_panic_hook")]
         console_error_panic_hook::set_once();
     }
-
 }
 
 #[wasm_bindgen]
 pub fn init() {
     utils::set_panic_hook();
-    web_sys::console::log_1(&"Conway's Game of Life initialized! ライフゲームが初期化されました！".into());
+    web_sys::console::log_1(
+        &"Conway's Game of Life initialized! ライフゲームが初期化されました！".into(),
+    );
 }
