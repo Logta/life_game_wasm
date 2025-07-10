@@ -1,6 +1,9 @@
 import { defineConfig } from "vite";
 import wasm from "vite-plugin-wasm";
-import { resolve } from "path";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 // Vite configuration for the Life Game WASM project
 // Life Game WASMプロジェクトのVite設定
