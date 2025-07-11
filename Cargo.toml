@@ -1,16 +1,17 @@
-# You must change these to your own details.
 [package]
-name = "life-game-wasm"
-description = "Conway's Game of Life implemented in Rust and WebAssembly"
+name = "life_game_wasm"
 version = "0.1.0"
-authors = ["Conway's Game of Life Team"]
-categories = ["wasm", "games"]
-readme = "README.md"
-license = "MIT"
+authors = ["Life Game WASM Contributors"]
 edition = "2021"
+description = "A high-performance Conway's Game of Life implementation in WebAssembly"
+license = "MIT"
+repository = "https://github.com/yourusername/life-game-wasm"
+readme = "README.md"
+keywords = ["wasm", "game-of-life", "conway", "webassembly", "simulation"]
+categories = ["wasm", "games", "simulation"]
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [profile.release]
 # This makes the compiled code faster and smaller, but it makes compiling slower,
@@ -22,8 +23,9 @@ lto = true
 # The `wasm-bindgen` crate provides the bare minimum functionality needed
 # to interact with JavaScript.
 wasm-bindgen = "0.2.100"
-console_error_panic_hook = "0.1.7"
+console_error_panic_hook = { version = "0.1.7", optional = true }
 js-sys = "0.3.77"
+getrandom = { version = "0.2", features = ["js"] }
 
 # The `web-sys` crate allows you to interact with the various browser APIs,
 # like the DOM.
@@ -42,8 +44,11 @@ features = [
 # logging them with `console.error`. This is great for development, but requires
 # all the `std::fmt` and `std::panicking` infrastructure, so it's only enabled
 # in debug mode.
+[features]
+default = ["console_error_panic_hook"]
+
 [target."cfg(debug_assertions)".dependencies]
-console_error_panic_hook = "0.1.5"
+console_error_panic_hook = "0.1.7"
 
 # These crates are used for running unit tests.
 [dev-dependencies]

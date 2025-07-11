@@ -1,20 +1,24 @@
 use crate::field::Field;
+use crate::rules::Rule;
 
+#[derive(Debug, Default, Clone)]
 pub struct StandardRule;
 
 impl StandardRule {
     pub fn new() -> Self {
-        StandardRule
+        Self
     }
+}
 
-    pub fn apply(&self, field: &Field) -> Field {
+impl Rule for StandardRule {
+    fn apply(&self, field: &Field) -> Field {
         let mut next_field = field.clone();
-        
+
         for row in 0..field.height() {
             for col in 0..field.width() {
                 let live_neighbors = field.count_live_neighbors(row, col);
-                let is_alive = field.get_cell(row, col);
-                
+                let is_alive = field.get_cell_unchecked(row, col);
+
                 let next_state = match (is_alive, live_neighbors) {
                     // Live cell with 2-3 neighbors survives
                     (true, 2) | (true, 3) => true,
@@ -23,11 +27,11 @@ impl StandardRule {
                     // All other cases: cell dies or stays dead
                     _ => false,
                 };
-                
-                next_field.set_cell(row, col, next_state);
+
+                next_field.set_cell_unchecked(row, col, next_state);
             }
         }
-        
+
         next_field
     }
 }
@@ -41,20 +45,20 @@ mod test {
     fn test_standard_rule() {
         let mut field = Field::new(5, 5);
         let rule = StandardRule::new();
-        
+
         // Create a blinker pattern
         field.set_cell(2, 1, true);
         field.set_cell(2, 2, true);
         field.set_cell(2, 3, true);
-        
+
         // Apply rule once
         let next_field = rule.apply(&field);
-        
+
         // Check the pattern has rotated
-        assert!(next_field.get_cell(1, 2));
-        assert!(next_field.get_cell(2, 2));
-        assert!(next_field.get_cell(3, 2));
-        assert!(!next_field.get_cell(2, 1));
-        assert!(!next_field.get_cell(2, 3));
+        assert!(next_field.get_cell(1, 2).unwrap());
+        assert!(next_field.get_cell(2, 2).unwrap());
+        assert!(next_field.get_cell(3, 2).unwrap());
+        assert!(!next_field.get_cell(2, 1).unwrap());
+        assert!(!next_field.get_cell(2, 3).unwrap());
     }
 }
