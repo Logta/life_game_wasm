@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A high-performance Conway's Game of Life implementation using WebAssembly and TypeScript">
-  <title>Conway's Game of Life - WASM</title>
+  <meta name="description" content="WebAssemblyとTypeScriptを使用した高パフォーマンスのConway's Game of Life実装">
+  <title>ライフゲーム</title>
   <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==">
   <style>
     body {
@@ -64,20 +64,20 @@
 
 <body>
   <div id="game-container">
-    <h1>Conway's Game of Life</h1>
+    <h1>ライフゲーム</h1>
     <canvas id="life-canvas" width="800" height="600"></canvas>
     <div class="controls">
-      <button id="play-pause-btn">Play</button>
-      <button id="step-btn">Step</button>
-      <button id="clear-btn">Clear</button>
-      <button id="random-btn">Random</button>
+      <button id="play-pause-btn">再生</button>
+      <button id="step-btn">ステップ</button>
+      <button id="clear-btn">クリア</button>
+      <button id="random-btn">ランダム</button>
       <div id="speed-control">
-        <label for="speed-slider">Speed: </label>
+        <label for="speed-slider">速度: </label>
         <input type="range" id="speed-slider" min="1" max="60" value="10">
         <span id="speed-value">10 FPS</span>
       </div>
     </div>
-    <div id="generation-counter">Generation: 0</div>
+    <div id="generation-counter">世代: 0</div>
   </div>
   <script type="module" src="/src/index.ts"></script>
 </body>

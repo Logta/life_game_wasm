@@ -1,6 +1,6 @@
 import init, { GameOfLife, init as wasmInit } from "../pkg/life_game_wasm.js";
 
-// Types
+// 型定義
 interface GameConfig {
     cellSize: number;
     width: number;
@@ -14,7 +14,6 @@ interface Coordinates {
 }
 
 /**
- * Game controller class that manages the Game of Life
  * ライフゲームを管理するゲームコントローラークラス
  */
 class GameController {
@@ -27,7 +26,7 @@ class GameController {
     private fps: number;
     private lastTime: number = 0;
 
-    // UI Elements
+    // UI要素
     private playPauseBtn: HTMLButtonElement;
     private stepBtn: HTMLButtonElement;
     private clearBtn: HTMLButtonElement;
@@ -40,16 +39,16 @@ class GameController {
         this.canvas = canvas;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
-            throw new Error("Failed to get 2D context from canvas");
+            throw new Error("キャンバスから2Dコンテキストを取得できませんでした");
         }
         this.ctx = ctx;
         this.config = config;
         this.fps = config.defaultFps;
 
-        // Initialize game
+        // ゲームを初期化
         this.game = new GameOfLife(config.width, config.height);
 
-        // Get UI elements
+        // UI要素を取得
         this.playPauseBtn = this.getElement<HTMLButtonElement>("play-pause-btn");
         this.stepBtn = this.getElement<HTMLButtonElement>("step-btn");
         this.clearBtn = this.getElement<HTMLButtonElement>("clear-btn");
@@ -63,40 +62,37 @@ class GameController {
     }
 
     /**
-     * Get an element by ID with type checking
      * 型チェック付きでIDによって要素を取得
      */
     private getElement<T extends HTMLElement>(id: string): T {
         const element = document.getElementById(id);
         if (!element) {
-            throw new Error(`Element with id "${id}" not found`);
+            throw new Error(`ID "${id}" の要素が見つかりません`);
         }
         return element as T;
     }
 
     /**
-     * Set up all event listeners
      * すべてのイベントリスナーを設定
      */
     private setupEventListeners(): void {
-        // Canvas click handler
+        // キャンバスクリックハンドラー
         this.canvas.addEventListener("click", this.handleCanvasClick.bind(this));
 
-        // Button handlers
+        // ボタンハンドラー
         this.playPauseBtn.addEventListener("click", this.togglePlayPause.bind(this));
         this.stepBtn.addEventListener("click", this.step.bind(this));
         this.clearBtn.addEventListener("click", this.clear.bind(this));
         this.randomBtn.addEventListener("click", this.randomize.bind(this));
 
-        // Speed slider handler
+        // 速度スライダーハンドラー
         this.speedSlider.addEventListener("input", this.handleSpeedChange.bind(this));
 
-        // Initialize speed display
+        // 速度表示を初期化
         this.updateSpeedDisplay();
     }
 
     /**
-     * Handle canvas click events
      * キャンバスクリックイベントを処理
      */
     private handleCanvasClick(event: MouseEvent): void {
@@ -108,7 +104,6 @@ class GameController {
     }
 
     /**
-     * Get click coordinates relative to the game grid
      * ゲームグリッドに対するクリック座標を取得
      */
     private getClickCoordinates(event: MouseEvent): Coordinates {
@@ -121,7 +116,6 @@ class GameController {
     }
 
     /**
-     * Check if coordinates are valid
      * 座標が有効かチェック
      */
     private isValidCoordinate(coords: Coordinates): boolean {
@@ -132,7 +126,6 @@ class GameController {
     }
 
     /**
-     * Main game loop with FPS control
      * FPS制御付きのメインゲームループ
      */
     private gameLoop(currentTime: number = 0): void {
@@ -150,7 +143,6 @@ class GameController {
     }
 
     /**
-     * Advance the game by one tick
      * ゲームを1ティック進める
      */
     private tick(): void {
@@ -159,7 +151,6 @@ class GameController {
     }
 
     /**
-     * Render the game state
      * ゲーム状態をレンダリング
      */
     private render(): void {
@@ -168,32 +159,29 @@ class GameController {
     }
 
     /**
-     * Update the generation counter display
      * 世代カウンターの表示を更新
      */
     private updateGenerationCounter(): void {
-        this.generationCounter.textContent = `Generation: ${this.game.generation()}`;
+        this.generationCounter.textContent = `世代: ${this.game.generation()}`;
     }
 
     /**
-     * Start playing the game
      * ゲームを開始
      */
     private play(): void {
         this.isPlaying = true;
-        this.playPauseBtn.textContent = "Pause";
+        this.playPauseBtn.textContent = "一時停止";
         this.stepBtn.disabled = true;
         this.lastTime = performance.now();
         this.gameLoop();
     }
 
     /**
-     * Pause the game
      * ゲームを一時停止
      */
     private pause(): void {
         this.isPlaying = false;
-        this.playPauseBtn.textContent = "Play";
+        this.playPauseBtn.textContent = "再生";
         this.stepBtn.disabled = false;
         if (this.animationId !== null) {
             cancelAnimationFrame(this.animationId);
@@ -202,7 +190,6 @@ class GameController {
     }
 
     /**
-     * Toggle play/pause state
      * 再生/一時停止状態を切り替え
      */
     private togglePlayPause(): void {
@@ -214,7 +201,6 @@ class GameController {
     }
 
     /**
-     * Advance the game by one step (when paused)
      * ゲームを1ステップ進める（一時停止時）
      */
     private step(): void {
@@ -224,7 +210,6 @@ class GameController {
     }
 
     /**
-     * Clear the game field
      * ゲームフィールドをクリア
      */
     private clear(): void {
@@ -236,7 +221,6 @@ class GameController {
     }
 
     /**
-     * Randomize the game field
      * ゲームフィールドをランダム化
      */
     private randomize(): void {
@@ -248,7 +232,6 @@ class GameController {
     }
 
     /**
-     * Handle speed slider change
      * 速度スライダーの変更を処理
      */
     private handleSpeedChange(event: Event): void {
@@ -258,7 +241,6 @@ class GameController {
     }
 
     /**
-     * Update the speed display
      * 速度表示を更新
      */
     private updateSpeedDisplay(): void {
@@ -266,7 +248,6 @@ class GameController {
     }
 
     /**
-     * Clean up resources
      * リソースをクリーンアップ
      */
     public destroy(): void {
@@ -276,24 +257,23 @@ class GameController {
 }
 
 /**
- * Initialize and run the Game of Life
  * ライフゲームを初期化して実行
  */
 async function main(): Promise<void> {
     try {
-        // Initialize WASM module
+        // WASMモジュールを初期化
         await init();
         
-        // Call custom init function
+        // カスタム初期化関数を呼び出し
         wasmInit();
 
-        // Get canvas element
+        // キャンバス要素を取得
         const canvas = document.getElementById("life-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {
-            throw new Error("Canvas element not found or is not a canvas");
+            throw new Error("キャンバス要素が見つからないか、キャンバスではありません");
         }
 
-        // Configuration
+        // 設定
         const config: GameConfig = {
             cellSize: 10,
             width: Math.floor(canvas.width / 10),
@@ -301,23 +281,23 @@ async function main(): Promise<void> {
             defaultFps: 10
         };
 
-        // Create and start the game controller
+        // ゲームコントローラーを作成して開始
         const controller = new GameController(canvas, config);
 
-        // Handle cleanup on page unload
+        // ページアンロード時のクリーンアップを処理
         window.addEventListener("beforeunload", () => {
             controller.destroy();
         });
 
     } catch (error) {
-        console.error("Failed to initialize Game of Life:", error);
-        // Display error message to user
+        console.error("ライフゲームの初期化に失敗しました:", error);
+        // ユーザーにエラーメッセージを表示
         const errorElement = document.createElement("div");
         errorElement.style.cssText = "color: red; padding: 20px; text-align: center;";
-        errorElement.textContent = `Failed to initialize: ${error instanceof Error ? error.message : String(error)}`;
+        errorElement.textContent = `初期化に失敗しました: ${error instanceof Error ? error.message : String(error)}`;
         document.body.prepend(errorElement);
     }
 }
 
-// Start the application
+// アプリケーションを開始
 main();

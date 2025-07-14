@@ -31,7 +31,7 @@ impl Field {
     pub fn get_index(&self, row: usize, col: usize) -> Result<usize> {
         if row >= self.height || col >= self.width {
             return Err(GameError::new(&format!(
-                "Cell position ({}, {}) is out of bounds for field of size {}x{}",
+                "セルの位置 ({}, {}) はサイズ {}x{} のフィールド範囲外です",
                 row, col, self.height, self.width
             )));
         }
@@ -115,7 +115,7 @@ mod test {
         assert_eq!(field.height(), 10);
         assert_eq!(field.cells().len(), 100);
 
-        // All cells should be dead initially
+        // 初期状態ではすべてのセルが死んでいるべき
         for cell in field.cells() {
             assert!(!cell);
         }
@@ -125,18 +125,18 @@ mod test {
     fn test_cell_operations() {
         let mut field = Field::new(3, 3);
 
-        // Test initial state
+        // 初期状態をテスト
         assert!(!field.get_cell(1, 1).unwrap());
 
-        // Test set_cell
+        // set_cellをテスト
         field.set_cell(1, 1, true).unwrap();
         assert!(field.get_cell(1, 1).unwrap());
 
-        // Test toggle_cell
+        // toggle_cellをテスト
         field.toggle_cell(1, 1).unwrap();
         assert!(!field.get_cell(1, 1).unwrap());
 
-        // Test out of bounds
+        // 範囲外テスト
         assert!(field.get_cell(10, 10).is_err());
         assert!(field.set_cell(10, 10, true).is_err());
         assert!(field.toggle_cell(10, 10).is_err());
@@ -146,15 +146,15 @@ mod test {
     fn test_clear() {
         let mut field = Field::new(3, 3);
 
-        // Set some cells alive
+        // いくつかのセルを生きた状態に設定
         field.set_cell(0, 0, true).unwrap();
         field.set_cell(1, 1, true).unwrap();
         field.set_cell(2, 2, true).unwrap();
 
-        // Clear the field
+        // フィールドをクリア
         field.clear();
 
-        // All cells should be dead
+        // すべてのセルが死んでいるべき
         for row in 0..3 {
             for col in 0..3 {
                 assert!(!field.get_cell(row, col).unwrap());
@@ -166,7 +166,7 @@ mod test {
     fn test_count_live_neighbors() {
         let mut field = Field::new(3, 3);
 
-        // Create a pattern:
+        // パターンを作成:
         // X O X
         // O X O
         // X O X
@@ -175,11 +175,11 @@ mod test {
         field.set_cell(1, 2, true).unwrap();
         field.set_cell(2, 1, true).unwrap();
 
-        // Center cell should have 4 live neighbors
+        // 中央のセルは4つの生きた隣接セルを持つべき
         assert_eq!(field.count_live_neighbors(1, 1), 4);
 
-        // Corner cells should see wrapping behavior
+        // 角のセルはラップアラウンド動作を見るべき
         let corner_neighbors = field.count_live_neighbors(0, 0);
-        assert!(corner_neighbors > 0); // Due to wrapping
+        assert!(corner_neighbors > 0); // ラップアラウンドのため
     }
 }
