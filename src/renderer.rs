@@ -3,7 +3,6 @@ use web_sys::CanvasRenderingContext2d;
 use crate::constants::{ALIVE_COLOR, CELL_SIZE, DEAD_COLOR, GRID_COLOR};
 use crate::field::Field;
 
-/// Canvas rendering functionality for the Game of Life
 /// ライフゲームのCanvas描画機能
 pub struct Renderer {
     cell_size: u32,
@@ -24,33 +23,30 @@ impl Default for Renderer {
 }
 
 impl Renderer {
-    /// Create a new renderer with default settings
     /// デフォルト設定で新しいレンダラーを作成
     pub fn new() -> Self {
         Self::default()
     }
 
-    /// Render the entire game field
     /// ゲームフィールド全体を描画
     pub fn render(&self, ctx: &CanvasRenderingContext2d, field: &Field) {
         self.draw_grid(ctx, field.width(), field.height());
         self.draw_cells(ctx, field);
     }
 
-    /// Draw the grid lines
     /// グリッド線を描画
     fn draw_grid(&self, ctx: &CanvasRenderingContext2d, width: usize, height: usize) {
         ctx.begin_path();
         ctx.set_stroke_style_str(&self.grid_color);
 
-        // Vertical lines / 垂直線
+        // 垂直線
         for i in 0..=width {
             let x = (i as u32 * self.cell_size) as f64;
             ctx.move_to(x, 0.0);
             ctx.line_to(x, (height as u32 * self.cell_size) as f64);
         }
 
-        // Horizontal lines / 水平線
+        // 水平線
         for j in 0..=height {
             let y = (j as u32 * self.cell_size) as f64;
             ctx.move_to(0.0, y);
@@ -60,14 +56,12 @@ impl Renderer {
         ctx.stroke();
     }
 
-    /// Draw all cells
     /// すべてのセルを描画
     fn draw_cells(&self, ctx: &CanvasRenderingContext2d, field: &Field) {
         let width = field.width();
         let height = field.height();
         let cells = field.cells();
 
-        // Batch draw operations for better performance
         // パフォーマンス向上のため描画操作をバッチ処理
         ctx.begin_path();
 

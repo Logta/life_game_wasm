@@ -10,7 +10,6 @@ use rules::{standard_rule::StandardRule, Rule};
 use wasm_bindgen::prelude::*;
 use web_sys::CanvasRenderingContext2d;
 
-/// The main Game of Life structure exposed to JavaScript
 /// JavaScriptに公開されるメインのライフゲーム構造体
 #[wasm_bindgen]
 pub struct GameOfLife {
@@ -24,7 +23,6 @@ pub struct GameOfLife {
 
 #[wasm_bindgen]
 impl GameOfLife {
-    /// Create a new Game of Life instance
     /// 新しいライフゲームインスタンスを作成
     #[wasm_bindgen(constructor)]
     pub fn new(width: u32, height: u32) -> GameOfLife {
@@ -57,48 +55,42 @@ impl GameOfLife {
         self.field.cells().as_ptr()
     }
 
-    /// Advance the game by one generation
     /// ゲームを1世代進める
     pub fn tick(&mut self) {
         self.field = self.rule.apply(&self.field);
         self.generation += 1;
     }
 
-    /// Toggle a cell's state
     /// セルの状態を切り替える
     pub fn toggle_cell(&mut self, row: u32, col: u32) {
-        // Ignore errors for out-of-bounds clicks
+        // 範囲外クリックのエラーを無視
         let _ = self.field.toggle_cell(row as usize, col as usize);
     }
 
-    /// Clear all cells
     /// すべてのセルをクリア
     pub fn clear(&mut self) {
         self.field.clear();
         self.generation = 0;
     }
 
-    /// Randomize the field
     /// フィールドをランダム化
     pub fn randomize(&mut self) {
         self.field.randomize();
         self.generation = 0;
     }
 
-    /// Render the game field to a canvas context
     /// ゲームフィールドをキャンバスコンテキストに描画
     pub fn render(&self, ctx: &CanvasRenderingContext2d) {
         self.renderer.render(ctx, &self.field);
     }
 }
 
-/// Utility functions for panic debugging
 /// パニックデバッグ用のユーティリティ関数
 mod utils {
     pub fn set_panic_hook() {
-        // When the `console_error_panic_hook` feature is enabled, we can call the
-        // `set_panic_hook` function at least once during initialization, and then
-        // we will get better error messages if our code ever panics.
+        // `console_error_panic_hook`機能が有効な場合、初期化時に少なくとも一度
+        // `set_panic_hook`関数を呼び出すことで、コードがパニックした際により良い
+        // エラーメッセージを取得できます。
         #[cfg(feature = "console_error_panic_hook")]
         console_error_panic_hook::set_once();
     }
