@@ -12,7 +12,7 @@ This is a high-performance Conway's Game of Life implementation using Rust/WebAs
 ## Code Quality Commands
 Always run these before considering a task complete:
 - `bun run typecheck` - Check TypeScript types
-- `bun run lint` - Run ESLint
+- `bun run lint` - Run oxlint
 - `cargo clippy -- -D warnings` - Run Rust linter
 - `cargo fmt -- --check` - Check Rust formatting
 

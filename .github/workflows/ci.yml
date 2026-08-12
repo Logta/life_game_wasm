@@ -57,7 +57,7 @@ jobs:
     - name: Run TypeScript type check
       run: bun run typecheck
 
-    - name: Run ESLint
+    - name: Run oxlint
       run: bun run lint
 
     - name: Build with Vite
