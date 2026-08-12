@@ -19,8 +19,10 @@ export default defineConfig({
     open: true,
     fs: {
       // Restrict file system access for security
+      // "." がプロジェクトルート全体(pkg/を含む)を許可するため、
+      // 個別に "./pkg" を指定する必要はない
       strict: true,
-      allow: [".", "../pkg"]
+      allow: ["."]
     }
   },
   

@@ -51,10 +51,6 @@ impl GameOfLife {
         self.generation
     }
 
-    pub fn cells(&self) -> *const bool {
-        self.field.cells().as_ptr()
-    }
-
     /// ゲームを1世代進める
     pub fn tick(&mut self) {
         self.field = self.rule.apply(&self.field);

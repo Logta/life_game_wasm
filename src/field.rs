@@ -82,6 +82,11 @@ impl Field {
         }
     }
 
+    /// 8方向の生きた隣接セルの数を数える
+    ///
+    /// フィールドはトーラス状（上下左右がループする）に扱われる。
+    /// `height - 1` / `width - 1` を加えて `% height` / `% width` することで、
+    /// 端のセルの隣接セルは反対側の端としてラップアラウンドする。
     pub fn count_live_neighbors(&self, row: usize, col: usize) -> u8 {
         let mut count = 0;
 

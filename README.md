@@ -32,7 +32,7 @@ mise run dev
 ### 必要な環境
 
 - [Rust](https://rustup.rs/) (stable toolchain)
-- [Node.js](https://nodejs.org/) (v20+)
+- [Bun](https://bun.sh/) (v1.2+)
 - [mise](https://mise.jdx.dev/) (推奨) または手動ツールインストール
 
 ### mise を使ったクイックスタート
@@ -51,14 +51,14 @@ rustup target add wasm32-unknown-unknown
 # wasm-packをインストール
 cargo install wasm-pack
 
-# Node.jsの依存関係をインストール
-npm install
+# 依存関係をインストール
+bun install
 
 # WebAssemblyパッケージをビルド
 wasm-pack build --target web --out-dir pkg --dev
 
 # 開発サーバーを起動
-npm run dev
+bun run dev
 ```
 
 ## 📋 利用可能なコマンド
@@ -77,53 +77,62 @@ mise run fix           # コードフォーマットの問題を修正
 mise run preview       # プロダクションビルドをプレビュー
 ```
 
-### npm を使用
+### bun を使用
 
 ```bash
-npm run dev            # 開発サーバーを起動
-npm run build          # プロダクション用ビルド
-npm run preview        # プロダクションビルドをプレビュー
-npm test               # テストを実行
+bun run dev            # 開発サーバーを起動
+bun run build          # プロダクション用ビルド
+bun run preview        # プロダクションビルドをプレビュー
+bun test               # テストを実行
 ```
 
 ## 🏗️ プロジェクト構造
 
+Rust(WASM)側とTypeScript側のソースは同じ `src/` に共存しています。
+
 ```
-├── src/                    # Rustソースコード
+├── src/                    # Rust/WebAssembly + TypeScriptソースコード
 │   ├── lib.rs             # メインWebAssemblyインターフェース
 │   ├── field.rs           # ゲームフィールドの実装
+│   ├── renderer.rs        # Canvas描画ロジック
+│   ├── error.rs           # エラー型定義
+│   ├── constants.rs       # 描画設定の定数
+│   ├── rules.rs           # ルールトレイト定義
 │   ├── rules/             # ゲームルールの実装
-│   └── config/            # 設定処理
-├── js/                    # JavaScriptフロントエンド
-│   └── index.js           # メインアプリケーションエントリーポイント
-├── static/                # 静的アセット
-│   └── index.html         # HTMLテンプレート
-├── tests/                 # Rustユニットテスト
+│   ├── index.ts           # フロントエンドのエントリーポイント
+│   ├── coordinates.ts     # 座標変換ロジック(純粋関数)
+│   └── coordinates.test.ts # coordinates.tsのユニットテスト
+├── tests/                 # Rust統合テスト(wasm-bindgen-test)
+├── index.html             # HTMLテンプレート
 ├── .github/workflows/     # CI/CDパイプライン
-├── mise.toml              # タスクランナー設定
-├── vite.config.js         # Vite設定
+├── mise.toml              # タスクランナー設定 (node/rust/bunバージョンの単一の真実の源泉)
+├── vite.config.ts         # Vite設定
 ├── Cargo.toml             # Rust依存関係
-└── package.json           # Node.js依存関係
+└── package.json           # Bun依存関係
 ```
 
 ## 🧪 テスト
 
 ```bash
-# 全てのテストを実行
-mise run test
+# 全てのテストを実行 (Rust + WebAssembly + TypeScript)
+bun run test
 
 # Rustユニットテストのみ実行
 cargo test
 
 # ブラウザでWebAssemblyテストを実行
 wasm-pack test --headless --firefox
+
+# TypeScriptユニットテストのみ実行
+bun run test:ts
 ```
 
 ## 🔧 技術スタック
 
 - **コア**: パフォーマンス重視のシミュレーションのための Rust + WebAssembly
-- **フロントエンド**: レンダリングに Canvas API を使用したバニラ JavaScript
+- **フロントエンド**: レンダリングに Canvas API を使用した TypeScript
 - **ビルドツール**: 高速開発のための Vite、WebAssembly パッケージングのための wasm-pack
+- **パッケージマネージャー**: 高速な依存関係インストールと実行のための Bun
 - **タスク管理**: 統合開発ワークフローのための mise
 - **テスト**: 包括的カバレッジのための Cargo test + wasm-pack test
 - **CI/CD**: セキュリティ監査付きの GitHub Actions
@@ -137,6 +146,8 @@ Conway's Game of Life は以下のシンプルなルールに従います:
 3. **死亡**: その他の全てのセルは死ぬか死んだままになる
 
 これらのシンプルなルールにも関わらず、ゲームは信じられないほど複雑で美しいパターンを生み出すことができます！
+
+このプロジェクトのフィールドは**トーラス状（上下左右がループする）**の実装になっています。つまり右端の隣接セルは左端、下端の隣接セルは上端として扱われ、グリッドの境界は存在しません（`src/field.rs` の `count_live_neighbors`）。
 
 ## 🚀 パフォーマンス
 
