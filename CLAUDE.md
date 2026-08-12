@@ -4,21 +4,21 @@
 This is a high-performance Conway's Game of Life implementation using Rust/WebAssembly and TypeScript.
 
 ## Build Commands
-- `npm run build` - Build the entire project (WASM + TypeScript + Vite)
-- `npm run build:wasm` - Build only the WASM module
-- `npm run build:ts` - Compile TypeScript
-- `npm run dev` - Start development server
+- `bun run build` - Build the entire project (WASM + TypeScript + Vite)
+- `bun run build:wasm` - Build only the WASM module
+- `bun run build:ts` - Compile TypeScript
+- `bun run dev` - Start development server
 
 ## Code Quality Commands
 Always run these before considering a task complete:
-- `npm run typecheck` - Check TypeScript types
-- `npm run lint` - Run ESLint
+- `bun run typecheck` - Check TypeScript types
+- `bun run lint` - Run ESLint
 - `cargo clippy -- -D warnings` - Run Rust linter
 - `cargo fmt -- --check` - Check Rust formatting
 
 ## Test Commands
 - `cargo test` - Run Rust tests
-- `npm run test` - Run all tests (Rust + WASM)
+- `bun run test` - Run all tests (Rust + WASM)
 
 ## Project Structure
 - `/src` - TypeScript frontend code

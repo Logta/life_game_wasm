@@ -5,6 +5,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-store/
+bun-debug.log*
+package-lock.json
 
 # Build outputs
 dist/

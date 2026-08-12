@@ -27,7 +27,7 @@
   "scripts": {
     "build:wasm": "wasm-pack build --target web --out-name life_game_wasm",
     "build:ts": "tsc",
-    "build": "npm run build:wasm && npm run build:ts && vite build",
+    "build": "bun run build:wasm && bun run build:ts && vite build",
     "dev": "vite",
     "preview": "vite preview",
     "test": "cargo test && wasm-pack test --headless",
@@ -50,6 +50,6 @@
     "vite-plugin-wasm": "^3.5.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "bun": ">=1.2.0"
   }
 }
