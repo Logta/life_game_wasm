@@ -47,10 +47,6 @@ features = [
 [features]
 default = ["console_error_panic_hook"]
 
-[target."cfg(debug_assertions)".dependencies]
-console_error_panic_hook = "0.1.7"
-
 # These crates are used for running unit tests.
 [dev-dependencies]
 wasm-bindgen-test = "0.3.77"
-js-sys = "0.3.104"

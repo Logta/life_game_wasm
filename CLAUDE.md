@@ -18,7 +18,8 @@ Always run these before considering a task complete:
 
 ## Test Commands
 - `cargo test` - Run Rust tests
-- `bun run test` - Run all tests (Rust + WASM)
+- `bun run test:ts` - Run TypeScript unit tests
+- `bun run test` - Run all tests (Rust + WASM + TypeScript)
 
 ## Project Structure
 - `/src` - TypeScript frontend code
@@ -29,5 +30,7 @@ Always run these before considering a task complete:
 ## Important Notes
 - The WASM module name is `life_game_wasm` (not `rust_webpack_template`)
 - Always use proper error handling in Rust (Result types)
-- Include both English and Japanese comments in new code
+- Write comments in Japanese for implementation code (`src/*.rs`, `src/*.ts`),
+  matching the existing style. Test files (`tests/*.rs`, `src/*.test.ts`) may
+  use English comments, following their existing convention.
 - Follow existing code patterns and conventions

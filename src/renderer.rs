@@ -57,34 +57,35 @@ impl Renderer {
     }
 
     /// すべてのセルを描画
+    ///
+    /// `set_fill_style_str` の呼び出しはCanvas APIとしてコストがあるため、
+    /// 色ごとにまとめて描画しfillStyleの切り替え回数を最小化する
+    /// (死んだセルは背景を1回塗るだけで済ませ、生きたセルのみループで描画する)。
     fn draw_cells(&self, ctx: &CanvasRenderingContext2d, field: &Field) {
         let width = field.width();
         let height = field.height();
         let cells = field.cells();
+        let canvas_width = (width as u32 * self.cell_size) as f64;
+        let canvas_height = (height as u32 * self.cell_size) as f64;
 
-        // パフォーマンス向上のため描画操作をバッチ処理
-        ctx.begin_path();
+        // 死んだセル(背景)を1回のfill_rectで描画
+        ctx.set_fill_style_str(&self.dead_color);
+        ctx.fill_rect(0.0, 0.0, canvas_width, canvas_height);
 
+        // 生きたセルのみをまとめて描画
+        ctx.set_fill_style_str(&self.alive_color);
         for row in 0..height {
             for col in 0..width {
                 let idx = row * width + col;
-                let is_alive = cells[idx];
-
-                ctx.set_fill_style_str(if is_alive {
-                    &self.alive_color
-                } else {
-                    &self.dead_color
-                });
-
-                ctx.fill_rect(
-                    (col as u32 * self.cell_size + 1) as f64,
-                    (row as u32 * self.cell_size + 1) as f64,
-                    (self.cell_size - 1) as f64,
-                    (self.cell_size - 1) as f64,
-                );
+                if cells[idx] {
+                    ctx.fill_rect(
+                        (col as u32 * self.cell_size + 1) as f64,
+                        (row as u32 * self.cell_size + 1) as f64,
+                        (self.cell_size - 1) as f64,
+                        (self.cell_size - 1) as f64,
+                    );
+                }
             }
         }
-
-        ctx.stroke();
     }
 }

@@ -47,9 +47,9 @@ mod test {
         let rule = StandardRule::new();
 
         // ブリンカーパターンを作成
-        field.set_cell(2, 1, true);
-        field.set_cell(2, 2, true);
-        field.set_cell(2, 3, true);
+        field.set_cell(2, 1, true).unwrap();
+        field.set_cell(2, 2, true).unwrap();
+        field.set_cell(2, 3, true).unwrap();
 
         // ルールを一度適用
         let next_field = rule.apply(&field);

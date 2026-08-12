@@ -1,4 +1,5 @@
 import init, { GameOfLife, init as wasmInit } from "../pkg/life_game_wasm.js";
+import { getClickCoordinates, isValidCoordinate } from "./coordinates";
 
 // 型定義
 interface GameConfig {
@@ -6,11 +7,6 @@ interface GameConfig {
   width: number;
   height: number;
   defaultFps: number;
-}
-
-interface Coordinates {
-  row: number;
-  col: number;
 }
 
 /**
@@ -96,35 +92,11 @@ class GameController {
    * キャンバスクリックイベントを処理
    */
   private handleCanvasClick(event: MouseEvent): void {
-    const coords = this.getClickCoordinates(event);
-    if (this.isValidCoordinate(coords)) {
+    const coords = getClickCoordinates(this.canvas, event, this.config.cellSize);
+    if (isValidCoordinate(coords, this.config.width, this.config.height)) {
       this.game.toggle_cell(coords.row, coords.col);
       this.render();
     }
-  }
-
-  /**
-   * ゲームグリッドに対するクリック座標を取得
-   */
-  private getClickCoordinates(event: MouseEvent): Coordinates {
-    const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const col = Math.floor(x / this.config.cellSize);
-    const row = Math.floor(y / this.config.cellSize);
-    return { row, col };
-  }
-
-  /**
-   * 座標が有効かチェック
-   */
-  private isValidCoordinate(coords: Coordinates): boolean {
-    return (
-      coords.row >= 0 &&
-      coords.row < this.config.height &&
-      coords.col >= 0 &&
-      coords.col < this.config.width
-    );
   }
 
   /**
