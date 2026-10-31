@@ -6,7 +6,7 @@ mod rules;
 
 use field::Field;
 use renderer::Renderer;
-use rules::{standard_rule::StandardRule, Rule};
+use rules::{Rule, standard_rule::StandardRule};
 use wasm_bindgen::prelude::*;
 use web_sys::CanvasRenderingContext2d;
 
