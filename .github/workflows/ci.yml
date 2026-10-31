@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -14,10 +17,12 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: Setup mise (node/bun/rust versions from mise.toml)
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       with:
         install: true
         cache: true
@@ -26,7 +31,7 @@ jobs:
       run: rustup target add wasm32-unknown-unknown
 
     - name: Cache Rust dependencies
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: |
           ~/.cargo/bin/
@@ -36,8 +41,20 @@ jobs:
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: Install wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    # 旧 rustwasm org のインストーラ（curl | sh）は使わず、wasm-bindgen/wasm-pack の
+    # リリースバイナリを SHA256 検証してから配置する（book-garden と同じ方式）。
+    - name: Install wasm-pack (prebuilt binary, checksum verified)
+      env:
+        WASM_PACK_VERSION: "0.15.0"
+        WASM_PACK_SHA256: c09f971ecaed9a2efc80fdcea7a00ef6b53c7fadc8c57d1f61b53a6aa66b668a
+      run: |
+        set -euo pipefail
+        archive="wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+        curl -sSfL -o "/tmp/${archive}" \
+          "https://github.com/wasm-bindgen/wasm-pack/releases/download/v${WASM_PACK_VERSION}/${archive}"
+        echo "${WASM_PACK_SHA256}  /tmp/${archive}" | sha256sum -c -
+        tar -xzf "/tmp/${archive}" -C /tmp
+        install -m 755 "/tmp/wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl/wasm-pack" ~/.cargo/bin/wasm-pack
 
     - name: Install dependencies
       run: bun install
@@ -69,10 +86,12 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main'
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: Setup mise (node/bun/rust versions from mise.toml)
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       with:
         install: true
         cache: true
@@ -81,7 +100,7 @@ jobs:
       run: rustup target add wasm32-unknown-unknown
 
     - name: Cache Rust dependencies
-      uses: actions/cache@v6
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: |
           ~/.cargo/bin/
@@ -91,8 +110,20 @@ jobs:
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: Install wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    # 旧 rustwasm org のインストーラ（curl | sh）は使わず、wasm-bindgen/wasm-pack の
+    # リリースバイナリを SHA256 検証してから配置する（book-garden と同じ方式）。
+    - name: Install wasm-pack (prebuilt binary, checksum verified)
+      env:
+        WASM_PACK_VERSION: "0.15.0"
+        WASM_PACK_SHA256: c09f971ecaed9a2efc80fdcea7a00ef6b53c7fadc8c57d1f61b53a6aa66b668a
+      run: |
+        set -euo pipefail
+        archive="wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+        curl -sSfL -o "/tmp/${archive}" \
+          "https://github.com/wasm-bindgen/wasm-pack/releases/download/v${WASM_PACK_VERSION}/${archive}"
+        echo "${WASM_PACK_SHA256}  /tmp/${archive}" | sha256sum -c -
+        tar -xzf "/tmp/${archive}" -C /tmp
+        install -m 755 "/tmp/wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl/wasm-pack" ~/.cargo/bin/wasm-pack
 
     - name: Install dependencies
       run: bun install
@@ -104,7 +135,7 @@ jobs:
       run: bun run build
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: dist
         path: dist/
@@ -114,10 +145,12 @@ jobs:
     name: Security Audit
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
 
     - name: Setup mise (node/bun/rust versions from mise.toml)
-      uses: jdx/mise-action@v4
+      uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       with:
         install: true
         cache: true
@@ -131,4 +164,4 @@ jobs:
       run: bun install
 
     - name: Audit dependencies
-      run: bun audit --audit-level moderate || true
+      run: bun audit --audit-level moderate
