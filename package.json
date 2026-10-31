@@ -40,12 +40,12 @@
     "clean": "rm -rf dist pkg target node_modules/.vite"
   },
   "devDependencies": {
-    "@types/node": "^26.2.0",
-    "oxfmt": "^0.64.0",
-    "oxlint": "^1.78.0",
-    "terser": "^5.50.0",
+    "@types/node": "^26.6.6",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
+    "terser": "^5.51.2",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
+    "vite": "^8.3.5",
     "vite-plugin-wasm": "^3.6.0"
   },
   "engines": {
