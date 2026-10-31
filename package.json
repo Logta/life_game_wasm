@@ -32,6 +32,8 @@
     "preview": "vite preview",
     "test": "cargo test && wasm-pack test --headless && bun test src",
     "test:ts": "bun test src",
+    "mutants:ts": "stryker run",
+    "mutants:rust": "cargo mutants",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint src",
     "lint:fix": "oxlint src --fix",
@@ -40,6 +42,7 @@
     "clean": "rm -rf dist pkg target node_modules/.vite"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^10.1.1",
     "@types/node": "^26.6.6",
     "oxfmt": "^0.75.0",
     "oxlint": "^1.90.0",
@@ -50,5 +53,9 @@
   },
   "engines": {
     "bun": ">=1.4.4"
+  },
+  "overrides": {
+    "minimatch": "11.0.2",
+    "qs": "6.16.2"
   }
 }

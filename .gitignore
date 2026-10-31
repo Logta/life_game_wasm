@@ -56,3 +56,8 @@ desktop.ini
 Cargo.lock
 **/*.rs.bk
 *.pdb
+# Mutation testing
+mutants.out/
+mutants.out.old/
+.stryker-tmp/
+reports/

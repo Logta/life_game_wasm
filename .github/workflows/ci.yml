@@ -77,6 +77,12 @@ jobs:
     - name: Run oxlint
       run: bun run lint
 
+    - name: Check TypeScript formatting
+      run: bun run format:check
+
+    - name: Run TypeScript tests
+      run: bun run test:ts
+
     - name: Build with Vite
       run: bun run build
 

@@ -71,7 +71,7 @@ impl GameOfLife {
 
     /// フィールドをランダム化
     pub fn randomize(&mut self) {
-        self.field.randomize();
+        self.field.randomize_with(js_sys::Math::random);
         self.generation = 0;
     }
 
@@ -98,4 +98,78 @@ pub fn init() {
     web_sys::console::log_1(
         &"Conway's Game of Life initialized! ライフゲームが初期化されました！".into(),
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn alive_cells(game: &GameOfLife) -> Vec<(usize, usize)> {
+        let field = &game.field;
+        (0..field.height())
+            .flat_map(|r| (0..field.width()).map(move |c| (r, c)))
+            .filter(|&(r, c)| field.get_cell(r, c).unwrap())
+            .collect()
+    }
+
+    #[test]
+    fn test_new_game_dimensions_and_generation() {
+        // 幅と高さを変えて取り違えを検出する
+        let game = GameOfLife::new(7, 5);
+        assert_eq!(game.width(), 7);
+        assert_eq!(game.height(), 5);
+        assert_eq!(game.field.width(), 7);
+        assert_eq!(game.field.height(), 5);
+        assert_eq!(game.generation(), 0);
+        assert!(alive_cells(&game).is_empty());
+    }
+
+    #[test]
+    fn test_tick_advances_generation_and_field() {
+        let mut game = GameOfLife::new(5, 5);
+        game.toggle_cell(2, 1);
+        game.toggle_cell(2, 2);
+        game.toggle_cell(2, 3);
+
+        game.tick();
+        assert_eq!(game.generation(), 1);
+        assert_eq!(alive_cells(&game), vec![(1, 2), (2, 2), (3, 2)]);
+
+        game.tick();
+        game.tick();
+        assert_eq!(game.generation(), 3);
+        assert_eq!(alive_cells(&game), vec![(1, 2), (2, 2), (3, 2)]);
+    }
+
+    #[test]
+    fn test_toggle_cell_flips_state_and_ignores_out_of_range() {
+        let mut game = GameOfLife::new(4, 3);
+        game.toggle_cell(2, 3);
+        assert_eq!(alive_cells(&game), vec![(2, 3)]);
+
+        // 範囲外は無視される（パニックしない・他のセルを変えない）
+        game.toggle_cell(3, 0);
+        game.toggle_cell(0, 4);
+        assert_eq!(alive_cells(&game), vec![(2, 3)]);
+
+        game.toggle_cell(2, 3);
+        assert!(alive_cells(&game).is_empty());
+    }
+
+    #[test]
+    fn test_clear_resets_cells_and_generation() {
+        let mut game = GameOfLife::new(4, 4);
+        game.toggle_cell(1, 1);
+        game.toggle_cell(1, 2);
+        game.toggle_cell(2, 1);
+        game.toggle_cell(2, 2);
+        game.tick();
+        game.tick();
+        assert_eq!(game.generation(), 2);
+        assert_eq!(alive_cells(&game).len(), 4);
+
+        game.clear();
+        assert_eq!(game.generation(), 0);
+        assert!(alive_cells(&game).is_empty());
+    }
 }
