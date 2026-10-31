@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
-  workflow_run:
+  workflow_run: # zizmor: ignore[dangerous-triggers] 自リポジトリの push 由来のみ build job の if で許可
     workflows: ["CI"]
     types:
       - completed
@@ -9,8 +9,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
@@ -18,14 +16,24 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    permissions:
+      contents: read
+    # workflow_run は fork からの PR でも発火し、head_branch はフォーク側のブランチ名
+    # （fork の "main" も一致する）になるため、自リポジトリへの push 由来に限定する
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup mise (node/bun/rust versions from mise.toml)
-        uses: jdx/mise-action@v4
+        uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           install: true
           cache: true
@@ -33,9 +41,20 @@ jobs:
       - name: Add wasm32 target
         run: rustup target add wasm32-unknown-unknown
 
-      - name: Install wasm-pack
+      # 旧 rustwasm org のインストーラ（curl | sh）は使わず、wasm-bindgen/wasm-pack の
+      # リリースバイナリを SHA256 検証してから配置する（book-garden と同じ方式）。
+      - name: Install wasm-pack (prebuilt binary, checksum verified)
+        env:
+          WASM_PACK_VERSION: "0.15.0"
+          WASM_PACK_SHA256: c09f971ecaed9a2efc80fdcea7a00ef6b53c7fadc8c57d1f61b53a6aa66b668a
         run: |
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          set -euo pipefail
+          archive="wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+          curl -sSfL -o "/tmp/${archive}" \
+            "https://github.com/wasm-bindgen/wasm-pack/releases/download/v${WASM_PACK_VERSION}/${archive}"
+          echo "${WASM_PACK_SHA256}  /tmp/${archive}" | sha256sum -c -
+          tar -xzf "/tmp/${archive}" -C /tmp
+          install -m 755 "/tmp/wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl/wasm-pack" ~/.cargo/bin/wasm-pack
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -44,16 +63,19 @@ jobs:
         run: bun run build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
         with:
           enablement: true
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: ./dist
 
   deploy:
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -62,4 +84,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
