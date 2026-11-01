@@ -1,0 +1,12 @@
+# cargo-mutants の設定（`mise run mutants:rust` で実行）
+# 対象はライフゲームの中核ロジック（フィールド操作・ルール・GameOfLife の状態遷移）。
+# Canvas 描画（renderer.rs）や、ブラウザ API（js_sys::Math / console）に依存する関数は
+# ネイティブの cargo test で検証できないため対象外にする。
+# （ランダム化のロジック本体は Field::randomize_with として対象に含めている）
+examine_globs = ["src/field.rs", "src/rules.rs", "src/rules/**/*.rs", "src/lib.rs"]
+exclude_re = [
+  "GameOfLife::render",
+  "GameOfLife::randomize",
+  "^src/lib.rs:.*\\binit\\b",
+  "utils::set_panic_hook",
+]

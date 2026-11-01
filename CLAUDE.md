@@ -20,6 +20,8 @@ Always run these before considering a task complete:
 - `cargo test` - Run Rust tests
 - `bun run test:ts` - Run TypeScript unit tests
 - `bun run test` - Run all tests (Rust + WASM + TypeScript)
+- `mise run mutants` - Mutation testing (cargo-mutants for Rust core logic, Stryker + `bun test` for TS core logic).
+  Heavy; run manually, not in CI. Config: `.cargo/mutants.toml`, `stryker.config.mjs`
 
 ## Project Structure
 - `/src` - TypeScript frontend code

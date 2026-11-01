@@ -95,3 +95,15 @@ run = "wasm-pack build --target web --out-dir pkg --dev"
 [tasks.wasm-build-release]
 description = "Build WebAssembly package for production"
 run = "wasm-pack build --target web --out-dir pkg --release"
+
+[tasks."mutants:rust"]
+description = "Run mutation testing for the Rust core logic (cargo-mutants, config: .cargo/mutants.toml)"
+run = "mise exec cargo:cargo-mutants@27.1.0 -- cargo mutants"
+
+[tasks."mutants:ts"]
+description = "Run mutation testing for the TypeScript core logic (Stryker + bun test, config: stryker.config.mjs)"
+run = "bunx stryker run"
+
+[tasks.mutants]
+description = "Run all mutation testing (Rust + TypeScript)"
+depends = ["mutants:rust", "mutants:ts"]

@@ -1,5 +1,6 @@
 import init, { GameOfLife, init as wasmInit } from "../pkg/life_game_wasm.js";
 import { getClickCoordinates, isValidCoordinate } from "./coordinates";
+import { computeFrameStep, parseFps } from "./timing";
 
 // 型定義
 interface GameConfig {
@@ -105,13 +106,11 @@ class GameController {
   private gameLoop(currentTime: number = 0): void {
     if (!this.isPlaying) return;
 
-    const deltaTime = currentTime - this.lastTime;
-    const targetDeltaTime = 1000 / this.fps;
-
-    if (deltaTime >= targetDeltaTime) {
+    const frame = computeFrameStep(currentTime, this.lastTime, this.fps);
+    if (frame.advance) {
       this.tick();
-      this.lastTime = currentTime - (deltaTime % targetDeltaTime);
     }
+    this.lastTime = frame.lastTime;
 
     this.animationId = requestAnimationFrame(this.gameLoop.bind(this));
   }
@@ -210,7 +209,7 @@ class GameController {
    */
   private handleSpeedChange(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.fps = parseInt(target.value, 10);
+    this.fps = parseFps(target.value, this.fps);
     this.updateSpeedDisplay();
   }
 

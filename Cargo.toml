@@ -2,7 +2,7 @@
 name = "life_game_wasm"
 version = "0.1.0"
 authors = ["Life Game WASM Contributors"]
-edition = "2021"
+edition = "2024"
 description = "A high-performance Conway's Game of Life implementation in WebAssembly"
 license = "MIT"
 repository = "https://github.com/yourusername/life-game-wasm"
@@ -22,15 +22,14 @@ lto = true
 [dependencies]
 # The `wasm-bindgen` crate provides the bare minimum functionality needed
 # to interact with JavaScript.
-wasm-bindgen = "0.2.127"
+wasm-bindgen = "0.2.129"
 console_error_panic_hook = { version = "0.1.7", optional = true }
-js-sys = "0.3.104"
-getrandom = { version = "0.4", features = ["wasm_js"] }
+js-sys = "0.3.106"
 
 # The `web-sys` crate allows you to interact with the various browser APIs,
 # like the DOM.
 [dependencies.web-sys]
-version = "0.3.104"
+version = "0.3.106"
 features = [
     "console",
     "Window",
@@ -49,4 +48,4 @@ default = ["console_error_panic_hook"]
 
 # These crates are used for running unit tests.
 [dev-dependencies]
-wasm-bindgen-test = "0.3.77"
+wasm-bindgen-test = "0.3.79"
