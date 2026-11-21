@@ -45,10 +45,13 @@
     "oxlint": "^1.78.0",
     "terser": "^5.50.0",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
+    "vite": "^8.3.8",
     "vite-plugin-wasm": "^3.6.0"
   },
   "engines": {
     "bun": ">=1.2.0"
+  },
+  "overrides": {
+    "tinypool": "2.1.2"
   }
 }
