@@ -75,10 +75,13 @@ impl Field {
         self.cells.fill(false);
     }
 
-    pub fn randomize(&mut self) {
-        use js_sys::Math;
+    /// 乱数源 `rng`（0.0 以上 1.0 未満の値を返す関数）を使ってフィールドをランダム化する
+    ///
+    /// 乱数源を引数で受け取ることで、ブラウザ API（`Math.random`）に依存せずにテストできる。
+    /// `rng()` が 0.5 より大きいセルを生きたセルにする。
+    pub fn randomize_with<F: FnMut() -> f64>(&mut self, mut rng: F) {
         for cell in &mut self.cells {
-            *cell = Math::random() > 0.5;
+            *cell = rng() > 0.5;
         }
     }
 
@@ -184,7 +187,131 @@ mod test {
         assert_eq!(field.count_live_neighbors(1, 1), 4);
 
         // 角のセルはラップアラウンド動作を見るべき
-        let corner_neighbors = field.count_live_neighbors(0, 0);
-        assert!(corner_neighbors > 0); // ラップアラウンドのため
+        // (0,0) の隣接セル: (2,2),(2,0),(2,1),(0,2),(0,1),(1,2),(1,0),(1,1)
+        // のうち生きているのは (2,1),(0,1),(1,2),(1,0) の4つ
+        assert_eq!(field.count_live_neighbors(0, 0), 4);
+    }
+
+    #[test]
+    fn test_get_index_row_major() {
+        let field = Field::new(4, 3);
+        assert_eq!(field.get_index(0, 0).unwrap(), 0);
+        assert_eq!(field.get_index(0, 3).unwrap(), 3);
+        assert_eq!(field.get_index(1, 0).unwrap(), 4);
+        assert_eq!(field.get_index(2, 3).unwrap(), 11);
+    }
+
+    #[test]
+    fn test_get_index_out_of_range_on_single_axis() {
+        // 幅4・高さ3: 行だけ・列だけが範囲外の場合もエラーになる
+        let field = Field::new(4, 3);
+        assert!(field.get_index(3, 0).is_err());
+        assert!(field.get_index(0, 4).is_err());
+        assert!(field.get_index(2, 3).is_ok());
+    }
+
+    #[test]
+    fn test_set_and_toggle_affect_only_target_cell() {
+        let mut field = Field::new(4, 3);
+        field.set_cell(1, 2, true).unwrap();
+        field.toggle_cell(2, 3).unwrap();
+
+        let alive: Vec<usize> = field
+            .cells()
+            .iter()
+            .enumerate()
+            .filter(|(_, alive)| **alive)
+            .map(|(idx, _)| idx)
+            .collect();
+        assert_eq!(alive, vec![6, 11]);
+
+        // toggle は死んだセルを生き返らせ、生きたセルを殺す
+        field.toggle_cell(1, 2).unwrap();
+        assert!(!field.get_cell(1, 2).unwrap());
+        assert!(field.get_cell(2, 3).unwrap());
+    }
+
+    #[test]
+    fn test_count_live_neighbors_all_eight_directions() {
+        // 5x5 の中央 (2,2) の周囲8マスをすべて生かす
+        let mut field = Field::new(5, 5);
+        for row in 1..=3 {
+            for col in 1..=3 {
+                if (row, col) != (2, 2) {
+                    field.set_cell(row, col, true).unwrap();
+                }
+            }
+        }
+        assert_eq!(field.count_live_neighbors(2, 2), 8);
+
+        // 自分自身は数えない
+        field.set_cell(2, 2, true).unwrap();
+        assert_eq!(field.count_live_neighbors(2, 2), 8);
+
+        // (0,0) から見て隣接しているのは (1,1) だけ（他は離れている）
+        assert_eq!(field.count_live_neighbors(0, 0), 1);
+    }
+
+    #[test]
+    fn test_count_live_neighbors_single_cell_each_direction() {
+        // 各方向に生きたセルが1つだけある場合に1と数える
+        // (幅と高さを変えて、行と列の取り違えも検出する)
+        for (dr, dc) in [
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
+        ] {
+            let mut field = Field::new(7, 5);
+            let row = (2 + dr) as usize;
+            let col = (3 + dc) as usize;
+            field.set_cell(row, col, true).unwrap();
+            assert_eq!(
+                field.count_live_neighbors(2, 3),
+                1,
+                "direction ({dr}, {dc}) should count as a neighbor"
+            );
+        }
+    }
+
+    #[test]
+    fn test_count_live_neighbors_wraps_around_edges() {
+        // 幅6・高さ4のトーラス: 右下の角 (3,5) の隣接セルは左端・上端にラップする
+        let mut field = Field::new(6, 4);
+        field.set_cell(0, 0, true).unwrap(); // 右下 + 1,+1 方向
+        field.set_cell(0, 5, true).unwrap(); // 下方向
+        field.set_cell(3, 0, true).unwrap(); // 右方向
+        assert_eq!(field.count_live_neighbors(3, 5), 3);
+
+        // 左上の角 (0,0) からは右下側が隣接セルになる
+        let mut field = Field::new(6, 4);
+        field.set_cell(3, 5, true).unwrap();
+        field.set_cell(3, 0, true).unwrap();
+        field.set_cell(0, 5, true).unwrap();
+        assert_eq!(field.count_live_neighbors(0, 0), 3);
+
+        // ラップしない遠いセルは数えない
+        field.set_cell(2, 3, true).unwrap();
+        assert_eq!(field.count_live_neighbors(0, 0), 3);
+    }
+
+    #[test]
+    fn test_randomize_with_threshold() {
+        let mut field = Field::new(2, 2);
+        // 0.5 より大きい値のときだけ生きたセルになる（0.5 ちょうどは死んだセル）
+        let values = [0.9, 0.5, 0.1, 0.51];
+        let mut iter = values.iter().copied();
+        field.randomize_with(|| iter.next().unwrap());
+        assert_eq!(field.cells(), &[true, false, false, true]);
+
+        // 既存の状態は上書きされる
+        field.randomize_with(|| 0.0);
+        assert!(field.cells().iter().all(|alive| !alive));
+        field.randomize_with(|| 0.99);
+        assert!(field.cells().iter().all(|alive| *alive));
     }
 }
