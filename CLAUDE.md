@@ -22,6 +22,10 @@ Always run these before considering a task complete:
 - `bun run test` - Run all tests (Rust + WASM + TypeScript)
 - `mise run mutants` - Mutation testing (cargo-mutants for Rust core logic, Stryker + `bun test` for TS core logic).
   Heavy; run manually, not in CI. Config: `.cargo/mutants.toml`, `stryker.config.mjs`
+- `mise run audit:rust` - Scan the repo-root `Cargo.lock` with cargo-audit 0.23.0
+  (`mise exec cargo:cargo-audit@0.23.0 -- cargo audit --file Cargo.lock`).
+  Manual report: needs network for the RustSec DB. Not part of `mise run check`.
+  A non-zero exit is an advisory finding. CI's Security Audit job runs this same task.
 
 ## Project Structure
 - `/src` - TypeScript frontend code

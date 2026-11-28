@@ -161,10 +161,10 @@ jobs:
         install: true
         cache: true
 
+    # バージョン固定と Cargo.lock の指定は mise.toml の audit:rust。
+    # cargo-audit は mise の cargo バックエンドが --locked で導入する。
     - name: Security audit
-      run: |
-        cargo install cargo-audit
-        cargo audit
+      run: mise run audit:rust
 
     - name: Install dependencies
       run: bun install

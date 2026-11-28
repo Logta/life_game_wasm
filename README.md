@@ -75,6 +75,7 @@ mise run clean         # 全てのビルド成果物をクリア
 mise run check         # フォーマットとlintingをチェック
 mise run fix           # コードフォーマットの問題を修正
 mise run preview       # プロダクションビルドをプレビュー
+mise run audit:rust    # Cargo.lock を RustSec で検査（手動）
 ```
 
 ### bun を使用
@@ -110,6 +111,16 @@ Rust(WASM)側とTypeScript側のソースは同じ `src/` に共存していま�
 ├── Cargo.toml             # Rust依存関係
 └── package.json           # Bun依存関係
 ```
+
+## 🔒 Rust 依存の監査
+
+`Cargo.lock`（リポジトリ直下）を RustSec アドバイザリデータベースと照合します。
+
+```bash
+mise run audit:rust
+```
+
+`cargo-audit` 0.23.0 は、`cargo-mutants` と同じく mise の cargo バックエンドが実行時に導入します（`cargo install --locked` 相当）。データベースの取得にネットワークが必要です。`mise run check` やテストジョブには含めていません。脆弱性があると終了コードは 0 以外になり、その出力が調査対象です。CI の Security Audit ジョブも同じ `mise run audit:rust` を使います。JavaScript 依存は従来どおり `bun audit` です。
 
 ## 🧪 テスト
 

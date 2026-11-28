@@ -100,6 +100,12 @@ run = "wasm-pack build --target web --out-dir pkg --release"
 description = "Run mutation testing for the Rust core logic (cargo-mutants, config: .cargo/mutants.toml)"
 run = "mise exec cargo:cargo-mutants@27.1.0 -- cargo mutants"
 
+# cargo-audit 0.23.0。mise の cargo バックエンドは既定で cargo install --locked。
+# アドバイザリ DB の取得にネットワークが要る。mise run check には含めない。
+[tasks."audit:rust"]
+description = "Scan Cargo.lock for RustSec advisories (cargo-audit 0.23.0). Manual; needs network."
+run = "mise exec cargo:cargo-audit@0.23.0 -- cargo audit --file Cargo.lock"
+
 [tasks."mutants:ts"]
 description = "Run mutation testing for the TypeScript core logic (Stryker + bun test, config: stryker.config.mjs)"
 run = "bunx stryker run"
